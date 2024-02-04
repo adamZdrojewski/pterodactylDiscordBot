@@ -1,0 +1,9 @@
+{
+    "compilerOptions": {
+        "removeComments": true,
+        "outDir": "dist",
+        "moduleResolution": "NodeNext",
+        "module": "NodeNext"
+    },
+    "include": ["src/**/*"]
+}
