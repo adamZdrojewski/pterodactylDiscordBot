@@ -6,7 +6,7 @@ export default {
         description: "Just an average command",
         type: 1
     },
-    interaction: (res) => {
+    interaction: (res: any) => {
         return res.send({
             type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
             data: {
