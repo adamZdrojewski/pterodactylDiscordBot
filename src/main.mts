@@ -1,6 +1,7 @@
 import "dotenv/config";
 import express from "express";
 import Commands from "./commands/Commands.mjs";
+import MessageComponents from "./messageComponents/MessageComponents.mjs";
 import {verifyKeyMiddleware, InteractionType} from "discord-interactions";
 import {DiscordRequest} from "./utility.mjs";
 
@@ -16,12 +17,21 @@ app.post("/interactions", verifyKeyMiddleware(DISCORD_PUBLIC_KEY), (req: any, re
     // Interaction type and data
     const {type, data} = req.body;
 
-    // Handle slash command requests
+    // Handle interactions based on type
     if(type === InteractionType.APPLICATION_COMMAND) {
+        // Handle slash command requests
         // Execute command interaction function
         for(const command in Commands) {
             if(Commands[command].info.name === data.name) {
                 Commands[command].interaction(res);
+            }
+        }
+    } else if(type === InteractionType.MESSAGE_COMPONENT) {
+        // Handle message component requests
+        // Execute message interaction function
+        for(const messageComponent in MessageComponents) {
+            if(MessageComponents[messageComponent].custom_id === data.custom_id) {
+                MessageComponents[messageComponent].interaction(req, res, data);
             }
         }
     }

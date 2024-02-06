@@ -33,3 +33,8 @@ export async function DiscordRequest(endpoint: string, options: any) {
     // Return origional response
     return response;
 };
+
+// Rounding helper
+export function roundTo2DecimalPlaces(num) {
+    return Math.round((num + Number.EPSILON) * 100) / 100;
+}
