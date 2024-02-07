@@ -28,8 +28,15 @@ export async function PterodactylRequest(endpoint: string, options: any) {
 
     // Throw API errors
     if(!response.ok) {
-        console.error(response);
-        throw new Error("ERROR while making Pterodactyl request.");
+        // Check for 403 (forbidden)
+        if(response.status === 403) {
+            // 403 error
+            throw new Error("ERROR: Pterodactyl user does not have access to requested resource.");
+        } else {
+            // Other error
+            console.error(response);
+            throw new Error("ERROR while making Pterodactyl request.");
+        }
     }
 
     // Return origional response
@@ -90,4 +97,4 @@ export async function changeServerPowerState(serverIdentifier:string, powerState
             signal: powerState
         }
     });
-}
+};
