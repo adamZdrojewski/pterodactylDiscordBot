@@ -39,11 +39,9 @@ app.post("/interactions", verifyKeyMiddleware(DISCORD_PUBLIC_KEY), (req: any, re
 
 // Register commands
 async function registerCommands() {
-    const guildId = "830499370935255050";
     for(const command in Commands) {
         try {
-            // TODO change to global commands (currently using guild-scoped)
-            const res = await DiscordRequest(`applications/${DISCORD_APPLICATION_ID}/guilds/${guildId}/commands`, {
+            await DiscordRequest(`applications/${DISCORD_APPLICATION_ID}/commands`, {
                 method: "POST",
                 body: Commands[command].info
             });
