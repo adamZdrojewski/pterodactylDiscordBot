@@ -67,7 +67,7 @@ export async function getServerResourceUsageEmbed(serverID:string) {
 
     // Organize data
     const serverResourceUsageData = {
-        name: serverData.attributes.name,
+        name: serverData.attributes.name.length >= 100 ? serverData.attributes.name.substring(0, 96) + "..." : serverData.attributes.name,
         status: serverResourcesData.attributes.current_state,
         ram: {
             used: roundTo2DecimalPlaces(serverResourcesData.attributes.resources.memory_bytes/1000000),
