@@ -1,7 +1,7 @@
 import "dotenv/config";
-import {changeServerPowerState} from "../PterodactylManager.mjs";
+import { getServerResourceUsage, getServerResourceUsageEmbed, changeServerPowerState} from "../PterodactylManager.mjs";
 import PowerState from "../PowerState.mjs";
-import { InteractionResponseType } from "discord-interactions";
+import { ButtonStyleTypes, InteractionResponseType, MessageComponentTypes } from "discord-interactions";
 
 // Load environment variables
 const PTERODACTYL_URL = process.env.PTERODACTYL_URL;
@@ -12,15 +12,57 @@ export default {
         // Get server identifier
         const serverIdentifier = req.body.message.embeds[0].url.replace(`${PTERODACTYL_URL}/server/`, "");
 
+        //Get server usage
+        const serverData = await getServerResourceUsage(serverIdentifier);
+
         try {
             // Send server power state request
-            await changeServerPowerState(serverIdentifier, PowerState.STOP);
+            await changeServerPowerState(serverIdentifier, PowerState.STOP); 
 
             // Send response to Discord
             res.send({
-                type: InteractionResponseType.DEFERRED_UPDATE_MESSAGE
+                type: InteractionResponseType.UPDATE_MESSAGE,
+                data: {
+                    embeds: [
+                        await getServerResourceUsageEmbed(serverIdentifier)
+                    ],
+                    components: [
+                        {
+                            type: MessageComponentTypes.ACTION_ROW,
+                            components: [
+                                {
+                                    type: MessageComponentTypes.BUTTON,
+                                    custom_id: serverData.status === "running" ? "controlRestartBtn" : "controlStartBtn",
+                                    label: serverData.status === "running" ? "Restart" : "Start",
+                                    style: ButtonStyleTypes.SUCCESS,
+                                },
+                                {
+                                    type: MessageComponentTypes.BUTTON,
+                                    custom_id: "controlKillBtn",
+                                    label: "Kill",
+                                    style: ButtonStyleTypes.DANGER,
+                                },
+                                {
+                                    type: MessageComponentTypes.BUTTON,
+                                    custom_id: "controlReloadBtn",
+                                    label: "Reload",
+                                    style: ButtonStyleTypes.PRIMARY
+                                },
+                                {
+                                    type: MessageComponentTypes.BUTTON,
+                                    custom_id: "controlMenu",
+                                    label: "Back",
+                                    style: ButtonStyleTypes.SECONDARY,
+                                }
+                            ]
+                        }
+                    ]
+                }
             });
-        } catch(err) {
+            
+        }
+
+        catch(err) {
             if(err.message === "ERROR: Pterodactyl user does not have access to requested resource.") {
                 // 403 error
                 res.send({
@@ -40,6 +82,7 @@ export default {
                     }
                 });
             }
-        }
+        }       
+
     }
 };
