@@ -56,8 +56,8 @@ export async function getServerList() {
 };
 
 // Get server resource usage from API
-export async function getServerResourceUsageEmbed(serverID:string) {
-    // Get data from API
+export async function getServerResourceUsage(serverID: string) {
+        // Get data from API
     const serverData = await (await PterodactylRequest(`client/servers/${serverID}`, {
         method: "GET"
     })).json();
@@ -66,7 +66,7 @@ export async function getServerResourceUsageEmbed(serverID:string) {
     })).json();
 
     // Organize data
-    const serverResourceUsageData = {
+    return {
         name: serverData.attributes.name.length >= 100 ? serverData.attributes.name.substring(0, 96) + "..." : serverData.attributes.name,
         status: serverResourcesData.attributes.current_state,
         ram: {
@@ -79,17 +79,24 @@ export async function getServerResourceUsageEmbed(serverID:string) {
         },
         cpu: roundTo2DecimalPlaces(serverResourcesData.attributes.resources.cpu_absolute)
     };
+}
+
+
+// Create embed object
+export async function getServerResourceUsageEmbed(serverID:string) {
+
+    const serverUsage = await getServerResourceUsage(serverID)
 
     // Return embed object
     return {
-        title: `[Controlling: ${serverResourceUsageData.name}]\n[Status: ${serverResourceUsageData.status}]`,
-        description: `\`[RAM Usage: ${serverResourceUsageData.ram.used}/${serverResourceUsageData.ram.total}MB]\`\n\`[Disk Usage: ${serverResourceUsageData.disk.used}/${serverResourceUsageData.disk.total}MB]\`\n\`[CPU Usage: ${serverResourceUsageData.cpu}%]\``,
+        title: `[Controlling: ${serverUsage.name}]\n[Status: ${serverUsage.status}]`,
+        description: `\`[RAM Usage: ${serverUsage.ram.used}/${serverUsage.ram.total}MB]\`\n\`[Disk Usage: ${serverUsage.disk.used}/${serverUsage.disk.total}MB]\`\n\`[CPU Usage: ${serverUsage.cpu}%]\``,
         color: 0x0099FF,
         url: `${PTERODACTYL_URL}/server/${serverID}`
     }
 };
 
-// Send start command to server
+// Send command to server
 export async function changeServerPowerState(serverIdentifier:string, powerState:PowerState) {
     await PterodactylRequest(`client/servers/${serverIdentifier}/power`, {
         method: "POST",

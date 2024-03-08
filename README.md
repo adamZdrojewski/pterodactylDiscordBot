@@ -25,6 +25,7 @@ services:
   app:
     image: adamzdrojewski/pterodactyl-discord-bot
     container_name: pterodactylDiscordBot
+    restart: unless-stopped
     ports:
       - "3000:3000"
     environment:
